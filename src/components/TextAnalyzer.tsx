@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { analyzeText } from '../utils/textAnalyzer';
+const CHARACTER_LIMIT = 100;
 
 export default function TextAnalyzer() {
   // Initialize dark mode based on system preference
@@ -15,6 +16,9 @@ export default function TextAnalyzer() {
   // Add state for expanded view
   const [showAllLetters, setShowAllLetters] = useState(false);
 
+  // Add new states for character limit
+  const [isLimitEnabled, setIsLimitEnabled] = useState(false);
+
   // Sort letter frequency for display - update to handle showing all letters
   const sortedLetterFrequency = Object.entries(analysis.letterFrequency)
     .sort(([, a], [, b]) => b - a)
@@ -29,6 +33,23 @@ export default function TextAnalyzer() {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  // Handle text change with character limit
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newText = e.target.value;
+    if (isLimitEnabled) {
+      setText(newText.slice(0, CHARACTER_LIMIT));
+    } else {
+      setText(newText);
+    }
+  };
+
+  // Add effect to handle enabling limit with existing text
+  useEffect(() => {
+    if (isLimitEnabled && text.length > CHARACTER_LIMIT) {
+      setText(text.slice(0, CHARACTER_LIMIT));
+    }
+  }, [isLimitEnabled]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -74,12 +95,17 @@ export default function TextAnalyzer() {
         {/* Text Input */}
         <div className="mb-6">
           <textarea
-            className="w-full h-40 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 
-                     dark:text-white border-0 focus:ring-2 focus:ring-purple-500
-                     resize-none"
+            className={`w-full h-40 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 
+                       dark:text-white focus:ring-2 focus:ring-purple-500
+                       resize-none ${
+                         isLimitEnabled && text.length >= CHARACTER_LIMIT 
+                         ? 'border-2 border-red-500' 
+                         : 'border-0'
+                       }`}
             placeholder="Start typing here... (or paste your text)"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={handleTextChange}
+            maxLength={isLimitEnabled ? CHARACTER_LIMIT : undefined}
           />
           
           <div className="flex flex-wrap justify-between items-center mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -87,7 +113,6 @@ export default function TextAnalyzer() {
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
-
                   checked={excludeSpaces}
                   onChange={(e) => setExcludeSpaces(e.target.checked)}
                   className="rounded"
@@ -95,12 +120,26 @@ export default function TextAnalyzer() {
                 Exclude Spaces
               </label>
               <label className="flex items-center gap-2">
-                <input type="checkbox" className="rounded" />
+                <input 
+                  type="checkbox" 
+                  checked={isLimitEnabled}
+                  onChange={(e) => setIsLimitEnabled(e.target.checked)}
+                  className="rounded" 
+                />
                 Set Character Limit
               </label>
             </div>
-            <div>
-              Approx. reading time: {readingTime} minute{readingTime !== 1 ? 's' : ''}
+            <div className="flex items-center gap-4">
+              {isLimitEnabled && (
+                <span className={`font-medium ${
+                  text.length >= CHARACTER_LIMIT ? 'text-red-500 dark:text-red-400' : ''
+                }`}>
+                  {text.length}/{CHARACTER_LIMIT} characters
+                </span>
+              )}
+              <span>
+                Approx. reading time: {readingTime} minute{readingTime !== 1 ? 's' : ''}
+              </span>
             </div>
           </div>
         </div>
