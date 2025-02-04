@@ -92,7 +92,6 @@ export default function TextAnalyzer() {
           </h3>
         </div>
 
-        {/* Text Input */}
         <div className="mb-6">
           <textarea
             className={`w-full h-40 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 
@@ -144,7 +143,6 @@ export default function TextAnalyzer() {
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-purple-100 dark:bg-purple-900/50 p-6 rounded-xl">
             <div className="text-5xl font-bold mb-2 dark:text-white">
@@ -168,7 +166,6 @@ export default function TextAnalyzer() {
           </div>
         </div>
 
-        {/* Letter Density */}
         <div>
           <h3 className="text-xl font-semibold mb-4 dark:text-white">Letter Density</h3>
           {text.length > 0 ? (
